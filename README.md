@@ -1,6 +1,6 @@
 # Project web-storage-service
 
-One Paragraph of project description goes here
+Service allows to authorize perform CRUD operations on user specific data
 
 ## Getting Started
 

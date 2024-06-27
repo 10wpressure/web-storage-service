@@ -1,39 +1,23 @@
 package server
 
 import (
-	"encoding/json"
-	"log"
 	"net/http"
 )
 
 func (s *Server) RegisterRoutes() http.Handler {
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", s.HelloWorldHandler)
+	r := http.NewServeMux()
 
-	mux.HandleFunc("/health", s.healthHandler)
+	r.HandleFunc("GET /health", s.HealthHandler) // TODO: оставить доступ только для админов
 
-	return mux
-}
+	r.HandleFunc("POST /api/auth", s.AuthHandler)
 
-func (s *Server) HelloWorldHandler(w http.ResponseWriter, r *http.Request) {
-	resp := make(map[string]string)
-	resp["message"] = "Hello World"
+	r.Handle("POST /api/upload-asset/{name}", s.AuthMiddleware(http.HandlerFunc(s.UploadAssetHandler)))
+	r.Handle("PUT /api/update-asset/{name}", s.AuthMiddleware(http.HandlerFunc(s.UpdateAssetHandler)))
+	r.Handle("GET /api/asset/{name}", s.AuthMiddleware(http.HandlerFunc(s.DownloadAssetHandler)))
+	r.Handle("PUT /api/delete-asset/{name}", s.AuthMiddleware(http.HandlerFunc(s.SoftDeleteAssetHandler)))
+	r.Handle("DELETE /api/delete-asset/{name}", s.AuthMiddleware(http.HandlerFunc(s.HardDeleteAssetHandler)))
+	r.Handle("GET /api/assets", s.AuthMiddleware(http.HandlerFunc(s.ListAssetsHandler)))
 
-	jsonResp, err := json.Marshal(resp)
-	if err != nil {
-		log.Fatalf("error handling JSON marshal. Err: %v", err)
-	}
-
-	_, _ = w.Write(jsonResp)
-}
-
-func (s *Server) healthHandler(w http.ResponseWriter, r *http.Request) {
-	jsonResp, err := json.Marshal(s.db.Health())
-
-	if err != nil {
-		log.Fatalf("error handling JSON marshal. Err: %v", err)
-	}
-
-	_, _ = w.Write(jsonResp)
+	return r
 }

@@ -28,3 +28,10 @@ tmp/
 # Project build
 main
 *templ.go
+
+# Certifactes
+certs/
+*.cer
+*.cert
+*.pem
+*.key

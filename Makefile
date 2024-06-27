@@ -7,15 +7,15 @@ build:
 	@echo "Building..."
 	
 	
-	@go build -o main cmd/api/main.go
+	@go build -o bin/main cmd/api/main.go
 
 # Run the application
-run:
+run: docker-run
 	@go run cmd/api/main.go
 
 # Create DB container
 docker-run:
-	@if docker compose up 2>/dev/null; then \
+	@if docker compose up -d 2>/dev/null; then \
 		: ; \
 	else \
 		echo "Falling back to Docker Compose V1"; \
@@ -39,7 +39,7 @@ test:
 # Clean the binary
 clean:
 	@echo "Cleaning..."
-	@rm -f main
+	@rm -f ./bin/main
 
 # Live Reload
 watch:
